@@ -21,13 +21,13 @@ public class WithRoutingDataSourceConfig {
         dataSourceMap.put("write", writeDataSource);
         dataSourceMap.put("read", readDataSource);
         routingDataSource.setTargetDataSources(dataSourceMap);
-        routingDataSource.setDefaultTargetDataSource(writeDataSource);
+        routingDataSource.setDefaultTargetDataSource(readDataSource);
 
         return routingDataSource;
     }
     
     @Bean
-    public DataSource dataSource(@Qualifier("routingDataSource") DataSource routingDataSource) {
+    public DataSource setDataSource(@Qualifier("routingDataSource") DataSource routingDataSource) {
         return new LazyConnectionDataSourceProxy(routingDataSource);
     }
 }

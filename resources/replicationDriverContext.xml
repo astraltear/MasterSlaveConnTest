@@ -4,8 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
-	<context:component-scan base-package="com.audien.db" />
-	<context:property-placeholder location="classpath:database.properties" />
+	<context:property-placeholder location="classpath:database_replicationDrv.properties" />
 
 	<bean id="abstractDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 		<property name="initialSize" value="${database.common.initialSize}" />
@@ -26,19 +25,11 @@
 	</bean>
 
 
-	<bean id="masterDataSource" parent="abstractDataSource">
-		<property name="driverClassName" value="${database.run.driverClassName}" />
-		<property name="url" value="${database.run.url}" />
-		<property name="username" value="${database.run.username}" />
-		<property name="password" value="${database.run.password}" />
-		<property name="defaultAutoCommit" value="false" />
+	<bean id="replicationDataSource" parent="abstractDataSource">
+		<property name="driverClassName" value="${database.replication.driverClassName}" />
+		<property name="url" value="${database.replication.url}" />
+		<property name="username" value="${database.replication.username}" />
+		<property name="password" value="${database.replication.password}" />
 	</bean>
 
-	<bean id="slaveDataSource" parent="abstractDataSource">
-		<property name="driverClassName" value="${database.dev.driverClassName}" />
-		<property name="url" value="${database.dev.url}" />
-		<property name="username" value="${database.dev.username}" />
-		<property name="password" value="${database.dev.password}" />
-		<property name="defaultAutoCommit" value="false" />
-	</bean>
 </beans>
