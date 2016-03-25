@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	
+	<context:component-scan base-package="com.audien.db"/>
+	<context:property-placeholder location="classpath:database.properties" />
+
+	<bean id="abstractDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="initialSize" value="${database.common.initialSize}" />
+		<property name="maxActive" value="${database.common.maxActive}" />
+		<property name="maxWait" value="${database.common.maxWait}" />
+		<property name="maxIdle" value="${database.common.maxIdle}" />
+		<property name="minIdle" value="${database.common.minIdle}" />
+		<property name="testOnBorrow" value="${database.common.testOnBorrow}" />
+		<property name="testOnReturn" value="${database.common.testOnReturn}" />
+		<property name="validationQuery" value="${database.common.validationQuery}" />
+		<property name="testWhileIdle" value="${database.common.testWhileIdle}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${database.common.timeBetweenEvictionRunsMillis}" />
+		<property name="minEvictableIdleTimeMillis" value="${database.common.minEvictableIdleTimeMillis}" />
+		<property name="numTestsPerEvictionRun" value="${database.common.numTestsPerEvictionRun}" />
+		<property name="removeAbandonedTimeout" value="${database.common.removeAbandonedTimeout}" />
+		<property name="removeAbandoned" value="${database.common.removeAbandoned}" />
+		<property name="logAbandoned" value="${database.common.logAbandoned}" />
+	</bean>
+
+
+	<bean id="masterDataSource" parent="abstractDataSource">
+		<property name="driverClassName" value="${database.run.driverClassName}" />
+		<property name="url" value="${database.run.url}" />
+		<property name="username" value="${database.run.username}" />
+		<property name="password" value="${database.run.password}" />
+	</bean>
+
+	<bean id="slaveDataSource" parent="abstractDataSource">
+		<property name="driverClassName" value="${database.dev.driverClassName}" />
+		<property name="url" value="${database.dev.url}" />
+		<property name="username" value="${database.dev.username}" />
+		<property name="password" value="${database.dev.password}" />
+	</bean>
+
+</beans>
