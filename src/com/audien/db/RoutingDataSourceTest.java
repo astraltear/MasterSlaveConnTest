@@ -23,9 +23,9 @@ public class RoutingDataSourceTest {
 	
 	public static void main(String[] args) {
 		ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationCtx.xml");
-		DataSourceTransactionManager txManger = (DataSourceTransactionManager) context.getBean("txManager");
-		
-		TransactionTemplate template = (TransactionTemplate) context.getBean("transactionTemplate");
+
+//		DataSourceTransactionManager txManger = (DataSourceTransactionManager) context.getBean("txManager");
+//		TransactionTemplate template = (TransactionTemplate) context.getBean("transactionTemplate");
 		
 		DataSource dataSource = (DataSource) context.getBean("setDataSource");
 		logger.info("RoutingDataSourceTest.dataSource:"+dataSource.toString());
