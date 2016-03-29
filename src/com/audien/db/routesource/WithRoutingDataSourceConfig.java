@@ -1,4 +1,4 @@
-package com.audien.db.util;
+package com.audien.db.routesource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ public class WithRoutingDataSourceConfig {
     }
     
     @Bean
-    public DataSource setDataSource(@Qualifier("routingDataSource") DataSource routingDataSource) {
+    public DataSource lastDataSource(@Qualifier("routingDataSource") DataSource routingDataSource) {
         return new LazyConnectionDataSourceProxy(routingDataSource);
     }
 }

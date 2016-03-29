@@ -1,4 +1,4 @@
-package com.audien.db;
+package com.audien.db.routesource;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -13,6 +13,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -21,17 +23,22 @@ public class RoutingDataSourceTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(RoutingDataSourceTest.class);
 	
+	private static ApplicationContext context = null;
+	
 	public static void main(String[] args) {
-		ApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationCtx.xml");
-
-//		DataSourceTransactionManager txManger = (DataSourceTransactionManager) context.getBean("txManager");
-//		TransactionTemplate template = (TransactionTemplate) context.getBean("transactionTemplate");
-		
-		DataSource dataSource = (DataSource) context.getBean("setDataSource");
-		logger.info("RoutingDataSourceTest.dataSource:"+dataSource.toString());
+		context = new ClassPathXmlApplicationContext("classpath:applicationCtx.xml");
+		readQuery();
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW,readOnly = true)
+	public static void readQuery() {
+		DataSource dataSource = (DataSource) context.getBean("lastDataSource");
+		logger.info("RoutingDataSourceTest.dataSource>>>>>>>>>>>>>>>>>>>>>>>>"+dataSource.toString());
 		
 		try {
 			Connection connection =  dataSource.getConnection();
+			
+//			connection.setReadOnly(true);
 			DatabaseMetaData dmd = connection.getMetaData();
 			String url = dmd.getURL();
 			
@@ -40,7 +47,6 @@ public class RoutingDataSourceTest {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 }

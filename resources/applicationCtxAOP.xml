@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
 
-	<context:annotation-config />
-	<bean class="com.audien.db.routesource.WithRoutingDataSourceConfig" />
 	<context:property-placeholder location="classpath:database.properties" />
 
 	<bean id="abstractDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -33,7 +33,6 @@
 		<property name="url" value="${database.run.url}" />
 		<property name="username" value="${database.run.username}" />
 		<property name="password" value="${database.run.password}" />
-		<property name="defaultAutoCommit" value="false" />
 	</bean>
 
 	<bean id="slaveDataSource" parent="abstractDataSource">
@@ -41,15 +40,37 @@
 		<property name="url" value="${database.dev.url}" />
 		<property name="username" value="${database.dev.username}" />
 		<property name="password" value="${database.dev.password}" />
-		<property name="defaultAutoCommit" value="false" />
 	</bean>
 
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="lastDataSource" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="dataSource" class="com.audien.db.aop.RoutingDataSource">
+		<property name="targetDataSources">
+			<map key-type="com.audien.db.aop.DataSourceType">
+				<entry key="MASTER" value-ref="masterDataSource" />
+				<entry key="SLAVE" value-ref="slaveDataSource" />
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="masterDataSource" />
 	</bean>
 	
-<!-- 	<tx:annotation-driven transaction-manager="transactionManager" /> -->
-	<tx:annotation-driven />
 	
-	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:/mybatis-config.xml"></property>
+		<property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml"></property>
+	</bean>
+
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+
+	<context:component-scan base-package="com.audien.db.aop"/>
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<tx:annotation-driven proxy-target-class="true" order="2" />
+
+
 </beans>
